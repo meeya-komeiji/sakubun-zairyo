@@ -1,0 +1,256 @@
+<!doctype html>
+<!--
+  作文ざいりょうレポートのテンプレート（使い方は report-guide.md）
+  - {{…}} を材料メモの中身に置きかえる。本人の言葉は「」付きのまま入れる
+  - 「くりかえし」の印が付いた行は、項目の数だけ複製する（0個なら（まだ）の行を1つ残す）
+  - まだの項目は <span class="missing">（まだ）</span> にする
+  - 「（まとめ）」の項目は <span class="matome">（まとめ）</span> を前に付ける
+  - 山かっこ・アンパサンドは &lt; &gt; &amp; にする
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作文ざいりょうレポート</title>
+<style>
+  :root {
+    --ink: #2d2a26;
+    --sub: #6f6a62;
+    --paper: #fbf8f1;
+    --card: #ffffff;
+    --line: #e6dfd0;
+    --a: #e07a4f;   /* 経験 */
+    --b: #d39b12;   /* 力 */
+    --c: #3f9a68;   /* 反応 */
+    --d: #4f78c4;   /* むずかしかったこと */
+    --e: #9563c0;   /* 未来 */
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "BIZ UDPGothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
+    font-size: 17px;
+    line-height: 1.85;
+  }
+  .page { max-width: 840px; margin: 0 auto; padding: 32px 16px 56px; overflow-wrap: anywhere; }
+  .thread > *, dl > * { min-width: 0; }
+
+  header { text-align: center; margin-bottom: 28px; }
+  header .kicker { color: var(--sub); font-size: 14px; letter-spacing: .1em; margin: 0; }
+  header h1 { font-size: 30px; margin: 4px 0 6px; letter-spacing: .05em; }
+  header .meta { color: var(--sub); font-size: 15px; margin: 0; }
+
+  /* 一本の糸：経験 → 力 → 反応・むずかしさ → 未来 */
+  .thread {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    align-items: stretch;
+    gap: 6px;
+    margin: 0 0 28px;
+  }
+  .thread .step {
+    background: var(--card);
+    border: 2px solid var(--line);
+    border-top: 6px solid var(--k);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .thread .step b { display: block; color: var(--k); font-size: 13px; letter-spacing: .05em; }
+  .thread .arrow { align-self: center; color: var(--sub); font-size: 20px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 10px solid var(--k);
+    border-radius: 14px;
+    padding: 18px 22px 14px;
+    margin: 18px 0;
+    break-inside: avoid;
+  }
+  .card h2 {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 20px; margin: 0 0 4px;
+  }
+  .card h2 .badge {
+    display: inline-grid; place-items: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--k); color: #fff; font-size: 16px; flex: none;
+  }
+  .card .task { color: var(--sub); font-size: 14px; margin: 0 0 10px; }
+  dl { margin: 0; display: grid; grid-template-columns: 11em 1fr; }
+  dt, dd { padding: 7px 0; border-top: 1px dashed var(--line); margin: 0; }
+  dt { color: var(--sub); font-size: 15px; padding-right: 12px; }
+  dd ul { margin: 0; padding-left: 1.2em; }
+
+  .k-a { --k: var(--a); } .k-b { --k: var(--b); } .k-c { --k: var(--c); }
+  .k-d { --k: var(--d); } .k-e { --k: var(--e); }
+
+  .power-name { font-size: 24px; font-weight: bold; color: var(--b); }
+  .matome { color: var(--sub); font-size: 13px; margin-right: 4px; }
+  .missing { color: #b3aa98; }
+
+  .own-words {
+    background: #fff6dc;
+    border: 2px dashed var(--b);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin: 26px 0 18px;
+    break-inside: avoid;
+  }
+  .own-words h2 { font-size: 18px; margin: 0 0 6px; }
+
+  .extra { margin-top: 26px; }
+  .extra h2 { font-size: 17px; margin: 18px 0 4px; }
+  .extra ul { margin: 0; padding-left: 1.3em; }
+  .todo { border-left: 6px solid #c9a227; padding: 4px 14px; background: #fffbea; border-radius: 6px; }
+
+  footer {
+    margin-top: 34px; padding-top: 14px; border-top: 2px solid var(--line);
+    text-align: center; color: var(--sub); font-size: 15px;
+  }
+
+  @media (max-width: 640px) {
+    .thread { grid-template-columns: 1fr; }
+    .thread .arrow { justify-self: center; transform: rotate(90deg); }
+    dl { grid-template-columns: 1fr; }
+    dt { border-top: 1px dashed var(--line); padding-bottom: 0; }
+    dd { border-top: none; padding-top: 2px; }
+  }
+  @media print {
+    @page { size: A4; margin: 14mm; }
+    body { background: #fff; font-size: 12.5pt; }
+    .page { padding: 0; max-width: none; }
+    .card, .thread .step { box-shadow: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header>
+    <p class="kicker">作文を書くための</p>
+    <h1>{{よび方}}さんの ざいりょうレポート</h1>
+    <p class="meta">さいごに話した日：{{YYYY年M月D日}}</p>
+  </header>
+
+  <!-- 一本の糸（それぞれ本人の言葉を短く。材料メモからそのまま一部をぬき出す。言いかえない） -->
+  <section class="thread" aria-label="経験から未来へのつながり">
+    <div class="step k-a"><b>① 経験</b>{{えらんだ経験}}</div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step k-b"><b>② わたしの力</b>{{力の名前}}</div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step k-c"><b>③ 反応・むずかしさ</b>{{まわりの反応のうち1つ}}</div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step k-e"><b>④ 未来</b>{{リーダーとして何をする}}</div>
+  </section>
+
+  <!-- A 経験 -->
+  <section class="card k-a">
+    <h2><span class="badge">A</span>人のために力を使った（使いたいと思った）経験</h2>
+    <p class="task">{{喜んでくれたこと／したいと思ったこと}}</p>
+    <dl>
+      <dt>えらんだ経験</dt><dd>{{えらんだ経験}}</dd>
+      <dt>えらんだ理由</dt><dd>{{えらんだ理由}}</dd>
+      <dt>いつ・どこ</dt><dd>{{いつ・どこ}}</dd>
+      <dt>だれ（だれのため）</dt><dd>{{だれ}}</dd>
+      <dt>何があった</dt><dd>{{何があった}}</dd>
+      <dt>自分がしたこと</dt><dd>{{自分がしたこと}}</dd>
+      <dt>どうしてそうしたか</dt><dd>{{どうしてそうしたか}}</dd>
+      <dt>気持ち</dt><dd><ul>
+        <li>前：{{前の気持ち}}</li>
+        <li>とちゅう：{{とちゅうの気持ち}}</li>
+        <li>あと：{{あとの気持ち}}</li>
+      </ul></dd>
+      <dt>覚えている言葉・様子</dt><dd><ul>
+        <li>{{覚えている言葉・様子}}</li><!-- くりかえし -->
+      </ul></dd>
+    </dl>
+  </section>
+
+  <!-- B 力 -->
+  <section class="card k-b">
+    <h2><span class="badge">B</span>わたしの力</h2>
+    <p class="task">あなたがつけた、あなたの力の名前</p>
+    <dl>
+      <dt>力の名前</dt><dd><span class="power-name">{{力の名前}}</span></dd>
+      <dt>その力が出ていた場面</dt><dd>{{力が出ていた場面}}</dd>
+      <dt>ほかの場面でも</dt><dd>{{ほかの場面}}</dd>
+      <dt>まわりの人から言われること</dt><dd>{{まわりから言われること}}</dd>
+    </dl>
+  </section>
+
+  <!-- C 反応 -->
+  <section class="card k-c">
+    <h2><span class="badge">C</span>まわりの人の反応</h2>
+    <p class="task">作文で書くこと②</p>
+    <dl>
+      <dt>まわりの反応</dt><dd><ul>
+        <li>{{反応}}</li><!-- くりかえし -->
+      </ul></dd>
+      <dt>そのとき思ったこと</dt><dd>{{そのとき思ったこと}}</dd>
+    </dl>
+  </section>
+
+  <!-- D むずかしかったこと -->
+  <section class="card k-d">
+    <h2><span class="badge">D</span>むずかしかったこと</h2>
+    <p class="task">作文で書くこと③</p>
+    <dl>
+      <dt>むずかしかったこと</dt><dd>{{むずかしかったこと}}</dd>
+      <dt>そのときどうしたか</dt><dd>{{そのときどうしたか}}</dd>
+      <dt>今の自分ならどうするか</dt><dd>{{今の自分なら}}</dd>
+    </dl>
+  </section>
+
+  <!-- E 未来 -->
+  <section class="card k-e">
+    <h2><span class="badge">E</span>大人になって、リーダーとしてやってみたいこと</h2>
+    <p class="task">作文で書くこと④</p>
+    <dl>
+      <dt>だれのために</dt><dd>{{だれのために}}</dd>
+      <dt>何をする</dt><dd>{{何をする}}</dd>
+      <dt>どうやって</dt><dd>{{どうやって}}</dd>
+      <dt>なぜやりたい</dt><dd>{{なぜやりたい}}</dd>
+      <dt>今回の経験とのつながり</dt><dd>{{経験とのつながり}}</dd>
+    </dl>
+  </section>
+
+  <!-- 自分の言葉でつなげると（メモに無ければこの section ごと消す） -->
+  <section class="own-words">
+    <h2>✏️ 自分の言葉でつなげると</h2>
+    <p>{{自分の言葉でつなげると}}</p>
+  </section>
+
+  <section class="extra">
+    <!-- まだのところ（メモに無ければこの div ごと消す） -->
+    <div class="todo">
+      <h2>まだのところ・もう少し考えたいところ</h2>
+      <ul>
+        <li>{{まだのところ}}</li><!-- くりかえし -->
+      </ul>
+    </div>
+
+    <h2>ほかに出てきた経験の候補</h2>
+    <ul>
+      <li>{{候補}}（{{喜んでくれたこと／したいと思ったこと}}）</li><!-- くりかえし -->
+    </ul>
+
+    <h2>力のヒントになりそうなこと</h2>
+    <ul>
+      <li>{{力のヒント}}</li><!-- くりかえし -->
+    </ul>
+  </section>
+
+  <footer>
+    このレポートは、{{よび方}}さんが話したことばを集めたものです。<br>
+    作文は、これを見ながら、自分のことばで書こう。
+  </footer>
+
+</main>
+</body>
+</html>

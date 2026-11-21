@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(/作文ざいりょうメモ.md)",
+      "Edit(/作文ざいりょうレポート.html)"
+    ]
+  }
+}
